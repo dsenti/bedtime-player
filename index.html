@@ -363,10 +363,10 @@ async function decryptFile(name, type){
   const pt = await crypto.subtle.decrypt({name:"AES-GCM",iv:buf.subarray(0,12)}, K, buf.subarray(12));
   return URL.createObjectURL(new Blob([pt],{type}));
 }
-const partName = i => `part-${String(i+1).padStart(2,"0")}.bin`;
+const partName = i => `part-${String(i+1).padStart(2,"0")}.mp3.bin`;
 const cache = new Map(); // part index -> Promise<blob url>
 function getPart(i){
-  if(!cache.has(i)) cache.set(i, decryptFile(partName(i),"audio/mp4").catch(e=>{cache.delete(i);throw e}));
+  if(!cache.has(i)) cache.set(i, decryptFile(partName(i),"audio/mpeg").catch(e=>{cache.delete(i);throw e}));
   return cache.get(i);
 }
 function prune(keep){
@@ -470,7 +470,7 @@ async function loadPart(i,t,play){
     au.src=url; au.playbackRate=speed;
     if(play) au.play().catch(()=>toast("Tap play to continue."));
     prune([i-1,i,i+1]);
-    if(i+1<N) prefetchT=setTimeout(()=>getPart(i+1).catch(()=>{}),15000);
+    if(i+1<N) prefetchT=setTimeout(()=>getPart(i+1).catch(()=>{}),20000);
   }catch(e){ if(seq===loadSeq) toast("This part couldn't be loaded. Check your connection and tap it again."); }
   finally{ if(seq===loadSeq) setLoading(false); }
 }
