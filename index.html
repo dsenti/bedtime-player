@@ -278,7 +278,7 @@ input[type=range]:hover::-moz-range-thumb{opacity:1}
       <div class="th"><span style="text-align:right">#</span><span>Title</span><span class="c3">Progress</span><span style="text-align:right"><svg style="margin-left:auto" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"/><path d="M8 3.25a.75.75 0 0 1 .75.75v3.25H11a.75.75 0 0 1 0 1.5H7.25V4A.75.75 0 0 1 8 3.25z"/></svg></span></div>
       <div id="trackList"></div>
     </section>
-    <div class="foot"><span>Unabridged · 14 h of narration in 11 parts, played in order.</span><span>Keys: Space play/pause · ← → 30 s · Shift + ← → 10 min</span></div>
+    <div class="foot"><span>Unabridged · 14 h of narration in 11 parts, played in order.</span><span>Keys: Space play/pause · ← → 10 s</span></div>
   </main>
 
   <aside id="figs" hidden aria-label="Book figures">
@@ -300,9 +300,9 @@ input[type=range]:hover::-moz-range-thumb{opacity:1}
     <div class="center">
       <div class="ctrls">
         <button class="cb" id="prevBtn" aria-label="Previous part"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3.3 1a.7.7 0 0 1 .7.7v5.15l9.95-5.744a.7.7 0 0 1 1.05.606v12.575a.7.7 0 0 1-1.05.607L4 9.149V14.3a.7.7 0 0 1-.7.7H1.7a.7.7 0 0 1-.7-.7V1.7a.7.7 0 0 1 .7-.7z"/></svg></button>
-        <button class="cb skip" id="back10" aria-label="Back 10 minutes" title="Back 10 minutes"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7.5 9.5A11 11 0 1 1 5 16"/><path d="M7.5 4v5.5H13"/></svg><em>10m</em></button>
+        <button class="cb skip" id="back10" aria-label="Back 10 seconds" title="Back 10 seconds"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7.5 9.5A11 11 0 1 1 5 16"/><path d="M7.5 4v5.5H13"/></svg><em>10</em></button>
         <button class="pp" id="ppBtn" aria-label="Play"></button>
-        <button class="cb skip" id="fwd10" aria-label="Forward 10 minutes" title="Forward 10 minutes"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M24.5 9.5A11 11 0 1 0 27 16"/><path d="M24.5 4v5.5H19"/></svg><em>10m</em></button>
+        <button class="cb skip" id="fwd10" aria-label="Forward 10 seconds" title="Forward 10 seconds"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M24.5 9.5A11 11 0 1 0 27 16"/><path d="M24.5 4v5.5H19"/></svg><em>10</em></button>
         <button class="cb" id="nextBtn" aria-label="Next part"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M12.7 1a.7.7 0 0 0-.7.7v5.15L2.05 1.107A.7.7 0 0 0 1 1.712v12.575a.7.7 0 0 0 1.05.607L12 9.149V14.3a.7.7 0 0 0 .7.7h1.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7z"/></svg></button>
       </div>
       <div class="seek tnum"><span id="tCur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="Position in part"><span id="tDur">0:00</span></div>
@@ -560,8 +560,8 @@ function setMeta(){
     navigator.mediaSession.metadata=new MediaMetadata({title:`Why We Sleep · Part ${part+1}`,artist:"Matthew Walker",album:"Why We Sleep (read by Steve West)",artwork:coverURL?[{src:coverURL,sizes:"900x900",type:"image/jpeg"}]:[]});
     const h=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch{}};
     h("play",()=>au.play()); h("pause",()=>au.pause());
-    h("seekbackward",()=>seekGlobal(-30)); h("seekforward",()=>seekGlobal(30));
-    h("previoustrack",()=>seekGlobal(-600)); h("nexttrack",()=>seekGlobal(600));
+    h("seekbackward",()=>seekGlobal(-10)); h("seekforward",()=>seekGlobal(10));
+    h("previoustrack",()=>seekGlobal(-10)); h("nexttrack",()=>seekGlobal(10));
     h("seekto",e=>{au.currentTime=e.seekTime;updateTime()});
   }catch{}
 }
@@ -572,7 +572,7 @@ try{new ResizeObserver(measureBar).observe($("bar"))}catch{}
 
 /* ---------- controls ---------- */
 $("ppBtn").onclick=toggle; $("bigPlay").onclick=toggle;
-$("back10").onclick=()=>seekGlobal(-600); $("fwd10").onclick=()=>seekGlobal(600);
+$("back10").onclick=()=>seekGlobal(-10); $("fwd10").onclick=()=>seekGlobal(10);
 $("prevBtn").onclick=()=>gotoPart(part-1); $("nextBtn").onclick=()=>gotoPart(part+1);
 $("signOut").onclick=signOut; $("signOut2").onclick=signOut; $("whoBtn").onclick=switchListener;
 const seekEl=$("seek");
@@ -650,8 +650,8 @@ document.addEventListener("keydown",e=>{
   if(e.target.closest("input,textarea") && e.target.type!=="range") return;
   if(e.code==="Space" && e.target.closest("button")) return;
   if(e.code==="Space"){e.preventDefault();toggle()}
-  else if(e.key==="ArrowLeft"&&e.target.type!=="range"){e.preventDefault();seekGlobal(e.shiftKey?-600:-30)}
-  else if(e.key==="ArrowRight"&&e.target.type!=="range"){e.preventDefault();seekGlobal(e.shiftKey?600:30)}
+  else if(e.key==="ArrowLeft"&&e.target.type!=="range"){e.preventDefault();seekGlobal(-10)}
+  else if(e.key==="ArrowRight"&&e.target.type!=="range"){e.preventDefault();seekGlobal(10)}
   else if(e.key==="Escape"){closeMenus()}
 });
 
