@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#121212">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Why We Sleep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: streaming-app shell — scrolling book page + figures side panel, fixed player bar at the bottom. Single dark look by choice. */
+:root{
+  --bg:#121212; --surface:#181818; --surface-2:#242424; --surface-3:#2e2e2e;
+  --fg:#ffffff; --muted:#b3b3b3; --dim:#7a7a7a; --line:#2a2a2a;
+  --accent:#1ed760; --accent-press:#1aa34a; --on-accent:#000000;
+  --night:#1d3466; --moon:#e8b13a; --danger:#f3727f;
+  --font:"Figtree","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --bar-h:96px;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);height:100%}
+[hidden]{display:none!important}
+img{max-width:100%}
+html,body{height:100%;margin:0}
+body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.45;overflow:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--fg);outline-offset:2px;border-radius:6px}
+svg{display:block}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ---------- Who's listening ---------- */
+#picker{position:fixed;inset:0;z-index:50;background:radial-gradient(120% 80% at 50% 0%,#1b2a4d 0%,var(--bg) 60%);overflow-y:auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(env(safe-area-inset-top,0px) + 56px) 48px}
+.pk-wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:36px}
+.pk-book{display:flex;align-items:center;gap:14px;color:var(--muted);font-weight:600;font-size:14px}
+.pk-book img{width:44px;height:44px;border-radius:4px}
+.pk-title{font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-.02em;text-align:center;text-wrap:balance;margin:0}
+.pk-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:28px 32px}
+.pk-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;width:140px;text-align:center;border-radius:12px;padding:8px 4px}
+.pk-tile .av{width:120px;height:120px;font-size:46px;transition:transform .15s ease,box-shadow .15s ease}
+.pk-tile:hover .av{transform:scale(1.04);box-shadow:0 8px 28px rgba(0,0,0,.5)}
+.pk-name{font-weight:700;font-size:17px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pk-sub{font-size:13px;color:var(--muted);margin-top:-6px}
+.pk-last{position:absolute;top:2px;right:6px;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px}
+.pk-x{position:absolute;top:0;right:4px;width:30px;height:30px;border-radius:50%;background:var(--surface-3);display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.pk-x:hover{background:var(--danger);color:#000}
+.av{border-radius:50%;display:grid;place-items:center;font-weight:800;color:#000;flex:none;user-select:none}
+.av-add{background:transparent!important;border:2px dashed #555;color:var(--muted)}
+.pk-tile:hover .av-add{border-color:var(--fg);color:var(--fg)}
+.pk-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.btn-ghost{border:1px solid #727272;border-radius:99px;padding:8px 20px;font-weight:700;font-size:14px;color:var(--fg)}
+.btn-ghost:hover{border-color:var(--fg);transform:scale(1.03)}
+.btn-pill{background:var(--accent);color:var(--on-accent);border-radius:99px;padding:12px 28px;font-weight:800;font-size:15px}
+.btn-pill:hover{background:#3be477;transform:scale(1.03)}
+.btn-pill:disabled{opacity:.4;transform:none;cursor:default}
+.pk-form,.pk-confirm{width:min(420px,100%);background:var(--surface);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:18px;box-shadow:0 16px 48px rgba(0,0,0,.5)}
+.pk-form h2,.pk-confirm h2{margin:0;font-size:20px;font-weight:800}
+.pk-form label{font-size:13px;font-weight:700;color:var(--muted)}
+.pk-form input{width:100%;box-sizing:border-box;background:var(--surface-2);border:1px solid #3e3e3e;border-radius:6px;color:var(--fg);font:inherit;font-size:16px;padding:12px 14px;margin-top:6px}
+.pk-form input:focus{border-color:var(--fg);outline:none}
+.swatches{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.sw{width:34px;height:34px;border-radius:50%;border:3px solid transparent}
+.sw[aria-checked="true"]{border-color:var(--fg)}
+.row-end{display:flex;justify-content:flex-end;gap:12px;align-items:center}
+.pk-note{font-size:13px;color:var(--muted);text-align:center;max-width:46ch}
+
+.lk-moon{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;color:var(--moon);background:radial-gradient(circle at 35% 30%,#2b4a8a,#14254a);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.chk{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--fg)!important;font-weight:500!important;cursor:pointer}
+.chk input{width:18px!important;height:18px;margin:0!important;accent-color:var(--accent)}
+.err{margin:0;color:var(--danger);font-size:14px;font-weight:600}
+.spin{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+img.cover:not([src]){visibility:hidden}
+.hero img.cover:not([src]),.np img.cover:not([src]){visibility:visible;background:linear-gradient(135deg,#2b4a8a,#14254a)}
+.who-row{display:flex;gap:8px;align-items:center;min-width:0;max-width:70%}
+.who{max-width:100%}
+#whoPanel{gap:28px}
+
+/* ---------- App shell ---------- */
+#app{height:100%;display:grid;grid-template-rows:minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:8px;box-sizing:border-box}
+#main{grid-column:1;grid-row:1;background:var(--surface);border-radius:10px;overflow-y:auto;overflow-x:hidden;position:relative}
+#figs{grid-column:2;grid-row:1;width:min(440px,38vw);background:var(--surface);border-radius:10px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#bar{grid-column:1 / -1;grid-row:2}
+#app:has(#figs[hidden]){grid-template-columns:minmax(0,1fr)}
+#sleepBtn{display:flex;align-items:center}
+
+.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;transition:background .2s}
+.topbar.solid{background:rgba(24,30,46,.96)}
+.who{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.55);border-radius:99px;padding:3px 14px 3px 3px;font-weight:700;font-size:14px;max-width:60%}
+.who .av{width:28px;height:28px;font-size:13px}
+.who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who:hover{background:rgba(0,0,0,.8)}
+.top-figs{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.55);border-radius:99px;padding:7px 14px;font-weight:700;font-size:14px}
+.top-figs:hover{background:rgba(0,0,0,.8)}
+.top-figs[aria-pressed="true"]{color:var(--accent)}
+
+.hero{margin-top:-56px;padding:72px 24px 24px;background:linear-gradient(180deg,#2b4a8a 0%,#1d3466 55%,var(--surface) 100%);display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap}
+.hero img{width:clamp(150px,22vw,232px);aspect-ratio:1;max-width:100%;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,.6);flex:none}
+.hero-txt{flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.eyebrow{font-size:13px;font-weight:600}
+.hero h1{margin:0;font-size:clamp(40px,7.5vw,88px);line-height:.95;font-weight:800;letter-spacing:-.035em;text-wrap:balance}
+.hero .sub{color:#d9def0;font-size:15px;font-weight:500}
+.meta{font-size:14px;color:#d9def0;display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center}
+.meta b{color:var(--fg)}
+.dot::before{content:"•";margin-right:6px;color:#9aa6c8}
+
+.actions{display:flex;align-items:center;gap:20px;padding:20px 24px;flex-wrap:wrap;background:linear-gradient(180deg,rgba(29,52,102,.35),transparent 140px)}
+.bigplay{width:56px;height:56px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none;box-shadow:0 8px 16px rgba(0,0,0,.3)}
+.bigplay:hover{transform:scale(1.05);background:#3be477}
+.resume{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1 1 220px;max-width:420px}
+.resume-l{font-size:14px;color:var(--muted)}
+.resume-l b{color:var(--fg);font-weight:700}
+.bookbar{height:4px;background:#4d4d4d;border-radius:2px;overflow:hidden}
+.bookbar i{display:block;height:100%;background:var(--accent);width:0}
+
+.tracks{padding:0 16px 32px}
+.th,.tr{display:grid;grid-template-columns:40px minmax(0,1fr) minmax(0,160px) 72px;gap:16px;align-items:center;padding:0 12px}
+.th{color:var(--muted);font-size:13px;height:36px;border-bottom:1px solid var(--line);margin-bottom:12px;position:sticky;top:56px;background:var(--surface);z-index:4}
+.tr{height:58px;border-radius:6px;width:100%;text-align:left}
+.tr:hover{background:#2a2a2a}
+.tr .n{color:var(--muted);text-align:right;font-size:15px;display:flex;justify-content:flex-end}
+.tr .t{min-width:0}
+.tr .t b{display:block;font-weight:500;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr .t small{color:var(--muted);font-size:13px}
+.tr .d{color:var(--muted);text-align:right;font-size:14px}
+.tr.cur .t b,.tr.cur .n{color:var(--accent)}
+.tr .pg{height:4px;background:#3a3a3a;border-radius:2px;overflow:hidden}
+.tr .pg i{display:block;height:100%;background:var(--muted);width:0}
+.tr.cur .pg i{background:var(--accent)}
+.tr .hov{display:none}
+.tr:hover .num{display:none}
+.tr:hover .hov{display:block;color:var(--fg)}
+.eq{display:flex;gap:2px;align-items:flex-end;height:14px}
+.eq i{width:3px;background:var(--accent);animation:eq 1s ease-in-out infinite}
+.eq i:nth-child(2){animation-delay:-.4s}.eq i:nth-child(3){animation-delay:-.7s}
+@keyframes eq{0%,100%{height:3px}50%{height:14px}}
+.paused .eq i{animation-play-state:paused}
+.foot{color:var(--dim);font-size:12px;padding:8px 28px 32px;display:flex;flex-direction:column;gap:2px}
+
+/* ---------- Figures panel ---------- */
+.fg-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 12px 10px 16px}
+.fg-head h2{margin:0;font-size:16px;font-weight:700}
+.fg-head h2 small{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.icon-btn{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+.icon-btn:hover{color:var(--fg);background:var(--surface-2)}
+.fg-tools{display:flex;gap:4px;align-items:center}
+.chips{display:flex;gap:8px;padding:0 16px 12px;overflow-x:auto;scrollbar-width:none}
+.chip{flex:none;background:var(--surface-2);border-radius:99px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.chip:hover{background:var(--surface-3)}
+.chip[aria-current="true"]{background:var(--fg);color:#000}
+.fg-scroll{flex:1;min-height:0;overflow:auto;padding:0 12px 16px;display:flex;flex-direction:column;gap:12px}
+.fg-scroll img{display:block;width:calc(100% * var(--zoom,1));max-width:none;border-radius:6px;background:#fff;flex:none}
+.zoomv{font-size:12px;color:var(--muted);min-width:38px;text-align:center}
+
+/* ---------- Player bar ---------- */
+#bar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) minmax(0,1fr);align-items:center;gap:16px;padding:6px 8px 4px;min-height:72px}
+.np{display:flex;align-items:center;gap:12px;min-width:0}
+.np img{width:56px;height:56px;border-radius:4px;flex:none}
+.np div{min-width:0}
+.np b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np small{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.center{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.ctrls{display:flex;align-items:center;gap:18px}
+.cb{color:var(--muted);display:grid;place-items:center;position:relative}
+.cb:hover{color:var(--fg)}
+.cb:disabled{opacity:.3;cursor:default}
+.skip{width:36px;height:36px}
+.skip em{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:10px;font-weight:800;padding-top:2px;letter-spacing:-.02em}
+.pp{width:40px;height:40px;border-radius:50%;background:var(--fg);color:#000;display:grid;place-items:center}
+.pp:hover{transform:scale(1.06)}
+.seek{display:flex;align-items:center;gap:8px;width:100%;max-width:640px;font-size:12px;color:var(--muted)}
+.seek span{min-width:52px}
+.seek span:first-child{text-align:right}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:16px;background:transparent;cursor:pointer;margin:0;--p:0%}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--fg) var(--p),#4d4d4d var(--p))}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--fg) var(--p),#4d4d4d var(--p))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--fg);margin-top:-4px;opacity:0}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radius:50%;background:var(--fg);opacity:0}
+input[type=range]:hover::-webkit-slider-runnable-track,input[type=range]:focus-visible::-webkit-slider-runnable-track{background:linear-gradient(to right,var(--accent) var(--p),#4d4d4d var(--p))}
+input[type=range]:hover::-moz-range-track{background:linear-gradient(to right,var(--accent) var(--p),#4d4d4d var(--p))}
+input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-webkit-slider-thumb{opacity:1}
+input[type=range]:hover::-moz-range-thumb{opacity:1}
+.extras{display:flex;align-items:center;justify-content:flex-end;gap:14px;min-width:0}
+.tx{color:var(--muted);font-size:13px;font-weight:700;padding:4px 6px;border-radius:4px;white-space:nowrap}
+.tx:hover{color:var(--fg)}
+.tx.on{color:var(--accent)}
+.vol{display:flex;align-items:center;gap:6px;width:130px}
+.pop{position:relative}
+.menu{position:absolute;bottom:calc(100% + 10px);right:0;background:var(--surface-3);border-radius:6px;padding:4px;min-width:170px;box-shadow:0 16px 24px rgba(0,0,0,.5);z-index:30;display:flex;flex-direction:column}
+.menu h3{margin:0;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:8px 12px 6px;font-weight:700}
+.menu button{text-align:left;padding:10px 12px;border-radius:4px;font-size:14px;display:flex;justify-content:space-between;gap:12px}
+.menu button:hover{background:#3e3e3e}
+.menu button[aria-checked="true"]{color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(var(--bar-h) + 24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#e9e9e9;color:#000;font-weight:600;font-size:14px;padding:10px 16px;border-radius:8px;z-index:70;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+
+/* ---------- Phone ---------- */
+@media (max-width:760px){
+  #app{grid-template-columns:minmax(0,1fr);padding:0;gap:0}
+  #main{border-radius:0}
+  #figs{position:fixed;left:0;right:0;top:0;bottom:var(--bar-h);width:auto;z-index:20;border-radius:0;padding-top:env(safe-area-inset-top,0px)}
+  .th,.tr{grid-template-columns:28px minmax(0,1fr) 64px;gap:12px;padding:0 8px}
+  .th .c3,.tr .pgc{display:none}
+  .tracks{padding:0 8px 24px}
+  .hero{padding:72px 16px 20px;gap:16px}
+  .actions{padding:16px}
+  #bar{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"np ex" "c c";gap:6px 8px;padding:10px max(12px,env(safe-area-inset-left,0px)) 6px max(12px,env(safe-area-inset-right,0px));background:var(--bg);border-top:1px solid var(--line)}
+  .np{grid-area:np}.np img{width:44px;height:44px}
+  .extras{grid-area:ex;gap:4px}
+  .center{grid-area:c}
+  .vol{display:none}
+  .ctrls{gap:22px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<!-- Sign in -->
+<section id="picker" aria-label="Sign in">
+  <div class="pk-wrap">
+    <div class="lk-moon" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg></div>
+    <h1 class="pk-title" id="pkTitle">Why We Sleep</h1>
+    <form class="pk-form" id="loginForm" novalidate>
+      <h2>Sign in to listen</h2>
+      <input type="text" name="username" autocomplete="username" value="listener" hidden>
+      <div><label for="pwIn">Password</label><input id="pwIn" name="password" type="password" autocomplete="current-password" spellcheck="false" autocapitalize="off"></div>
+      <label class="chk" for="stayIn"><input type="checkbox" id="stayIn" checked> Stay signed in on this device</label>
+      <p class="err" id="lkErr" hidden></p>
+      <div class="row-end"><button class="btn-pill" id="unlockBtn">Unlock</button></div>
+    </form>
+    <div id="whoPanel" class="pk-wrap" hidden>
+      <div class="pk-grid" id="pkGrid"></div>
+      <button class="btn-ghost" id="signOut2">Sign out</button>
+    </div>
+    <form class="pk-form" id="nameForm" novalidate hidden>
+      <h2>Welcome! What's your name?</h2>
+      <div><label for="nameIn">Name</label><input id="nameIn" maxlength="24" autocomplete="given-name"></div>
+      <div class="row-end"><button class="btn-pill" id="nameBtn" disabled>Start listening</button></div>
+    </form>
+    <p class="pk-note">Private copy for two listeners. Your place in the book is saved on this device.</p>
+  </div>
+</section>
+
+<!-- App -->
+<div id="app" hidden>
+  <main id="main">
+    <div class="topbar" id="topbar">
+      <div class="who-row"><button class="who" id="whoBtn" title="Switch listener"><span class="av" id="whoAv"></span><span id="whoName"></span></button><button class="top-figs" id="signOut">Sign out</button></div>
+      <button class="top-figs" id="figsTop" aria-pressed="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>
+        Figures
+      </button>
+    </div>
+    <header class="hero">
+      <img class="cover" alt="Why We Sleep cover">
+      <div class="hero-txt">
+        <span class="eyebrow">Audiobook</span>
+        <h1>Why We Sleep</h1>
+        <span class="sub">Unlocking the Power of Sleep and Dreams</span>
+        <div class="meta"><b>Matthew Walker, PhD</b><span class="dot">Read by Steve West</span><span class="dot">11 parts</span><span class="dot tnum" id="totalLen"></span></div>
+      </div>
+    </header>
+    <div class="actions">
+      <button class="bigplay" id="bigPlay" aria-label="Play"></button>
+      <div class="resume">
+        <span class="resume-l tnum" id="resumeL"></span>
+        <div class="bookbar"><i id="bookFill"></i></div>
+      </div>
+    </div>
+    <section class="tracks" aria-label="Parts">
+      <div class="th"><span style="text-align:right">#</span><span>Title</span><span class="c3">Progress</span><span style="text-align:right"><svg style="margin-left:auto" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"/><path d="M8 3.25a.75.75 0 0 1 .75.75v3.25H11a.75.75 0 0 1 0 1.5H7.25V4A.75.75 0 0 1 8 3.25z"/></svg></span></div>
+      <div id="trackList"></div>
+    </section>
+    <div class="foot"><span>Unabridged · 14 h of narration in 11 parts, played in order.</span><span>Keys: Space play/pause · ← → 30 s · Shift + ← → 10 min</span></div>
+  </main>
+
+  <aside id="figs" hidden aria-label="Book figures">
+    <div class="fg-head">
+      <h2>Figures<small>Why We Sleep Enhancement · 7 pages</small></h2>
+      <div class="fg-tools">
+        <button class="icon-btn" id="zoomOut" aria-label="Zoom out"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14"/></svg></button>
+        <span class="zoomv tnum" id="zoomV">100%</span>
+        <button class="icon-btn" id="zoomIn" aria-label="Zoom in"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button class="icon-btn" id="figsClose" aria-label="Close figures"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="fg-scroll" id="fgScroll"></div>
+  </aside>
+
+  <footer id="bar">
+    <div class="np"><img class="cover" alt=""><div><b id="npTitle">Part 1</b><small>Why We Sleep · Matthew Walker</small></div></div>
+    <div class="center">
+      <div class="ctrls">
+        <button class="cb" id="prevBtn" aria-label="Previous part"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3.3 1a.7.7 0 0 1 .7.7v5.15l9.95-5.744a.7.7 0 0 1 1.05.606v12.575a.7.7 0 0 1-1.05.607L4 9.149V14.3a.7.7 0 0 1-.7.7H1.7a.7.7 0 0 1-.7-.7V1.7a.7.7 0 0 1 .7-.7z"/></svg></button>
+        <button class="cb skip" id="back10" aria-label="Back 10 minutes" title="Back 10 minutes"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7.5 9.5A11 11 0 1 1 5 16"/><path d="M7.5 4v5.5H13"/></svg><em>10m</em></button>
+        <button class="pp" id="ppBtn" aria-label="Play"></button>
+        <button class="cb skip" id="fwd10" aria-label="Forward 10 minutes" title="Forward 10 minutes"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M24.5 9.5A11 11 0 1 0 27 16"/><path d="M24.5 4v5.5H19"/></svg><em>10m</em></button>
+        <button class="cb" id="nextBtn" aria-label="Next part"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M12.7 1a.7.7 0 0 0-.7.7v5.15L2.05 1.107A.7.7 0 0 0 1 1.712v12.575a.7.7 0 0 0 1.05.607L12 9.149V14.3a.7.7 0 0 0 .7.7h1.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7z"/></svg></button>
+      </div>
+      <div class="seek tnum"><span id="tCur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="Position in part"><span id="tDur">0:00</span></div>
+    </div>
+    <div class="extras">
+      <div class="pop"><button class="tx" id="speedBtn" aria-haspopup="true" title="Playback speed">1×</button><div class="menu" id="speedMenu" hidden></div></div>
+      <div class="pop"><button class="tx" id="sleepBtn" aria-haspopup="true" title="Sleep timer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg></button><div class="menu" id="sleepMenu" hidden></div></div>
+      <button class="cb" id="figsBar" aria-label="Show figures" title="Figures (PDF)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></button>
+      <div class="vol"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="color:var(--muted)"><path d="M9.741.85a.75.75 0 0 1 .375.65v13a.75.75 0 0 1-1.125.65l-6.925-4a3.642 3.642 0 0 1-1.33-4.967 3.639 3.639 0 0 1 1.33-1.332l6.925-4a.75.75 0 0 1 .75 0zm-6.924 5.3a2.139 2.139 0 0 0 0 3.7l5.8 3.35V2.8l-5.8 3.35zm8.683 4.29V5.56a2.75 2.75 0 0 1 0 4.88z"/></svg><input type="range" id="vol" min="0" max="100" value="100" aria-label="Volume"></div>
+    </div>
+  </footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+<audio id="au" preload="metadata"></audio>
+
+<script>
+(() => {
+const DUR = [4554.264,4505.184,4703.784,4725.624,4456.968,4640.760,4772.448,4459.896,4476.600,4736.304,4001.640];
+const N = DUR.length, OFF = DUR.reduce((a,d,i)=>(a.push((a[i-1]??0)+(i?DUR[i-1]:0)),a),[]), TOTAL = DUR.reduce((a,b)=>a+b,0);
+const SPEEDS = [0.8,1,1.1,1.2,1.3,1.5,1.75,2];
+const PAGES = [{l:"Title",p:1},{l:"Fig 1–3",p:2},{l:"Fig 4–6",p:3},{l:"Fig 7–9",p:4},{l:"Fig 10–12",p:5},{l:"Fig 13–15",p:6},{l:"Fig 16–17",p:7}];
+const SLOT_COLORS = {s1:"#ffd43b", s2:"#f573a0"};
+const $ = id => document.getElementById(id);
+const au = $("au");
+const ICON = {
+  play:'<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288V1.713z"/></svg>',
+  pause:'<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2.7 1a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7H2.7zm8 0a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-2.6z"/></svg>',
+  bigplay:'<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M7.05 3.606l13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"/></svg>',
+  bigpause:'<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"/></svg>',
+  spin:'<svg class="spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9"/></svg>'
+};
+const ls = {
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
+  del(k){try{localStorage.removeItem(k)}catch{}}
+};
+
+/* ---------- crypto ---------- */
+const ub64 = s => Uint8Array.from(atob(s), c=>c.charCodeAt(0));
+const b64 = u => btoa(String.fromCharCode(...u));
+let K = null, slot = null;
+async function unlock(pw){
+  const res = await fetch("keys.json",{cache:"no-cache"});
+  if(!res.ok) throw new Error("net");
+  const kj = await res.json();
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
+  for(const s of kj.slots){
+    const kek = await crypto.subtle.deriveKey({name:"PBKDF2",salt:ub64(s.salt),iterations:kj.iter,hash:"SHA-256"}, base, {name:"AES-GCM",length:256}, false, ["decrypt"]);
+    try{ const raw = new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM",iv:ub64(s.iv)}, kek, ub64(s.key))); return {raw}; }catch{}
+  }
+  return null;
+}
+const importK = raw => crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["decrypt"]);
+async function decryptFile(name, type){
+  const res = await fetch("enc/"+name);
+  if(!res.ok) throw new Error("net");
+  const buf = new Uint8Array(await res.arrayBuffer());
+  const pt = await crypto.subtle.decrypt({name:"AES-GCM",iv:buf.subarray(0,12)}, K, buf.subarray(12));
+  return URL.createObjectURL(new Blob([pt],{type}));
+}
+const partName = i => `part-${String(i+1).padStart(2,"0")}.bin`;
+const cache = new Map(); // part index -> Promise<blob url>
+function getPart(i){
+  if(!cache.has(i)) cache.set(i, decryptFile(partName(i),"audio/mp4").catch(e=>{cache.delete(i);throw e}));
+  return cache.get(i);
+}
+function prune(keep){
+  for(const [i,p] of cache) if(!keep.includes(i)){ cache.delete(i); p.then(u=>URL.revokeObjectURL(u)).catch(()=>{}); }
+}
+let coverURL = "", pagesLoaded = false;
+
+/* ---------- state ---------- */
+let name = "", part = 0, speed = 1, seeking = false, loading = false;
+let sleepAt = null, sleepEndOfPart = false, sleepTick = null, lastSaved = null, prefetchT = null;
+
+function fmt(s){s=Math.max(0,Math.floor(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`:`${m}:${String(x).padStart(2,"0")}`}
+function hm(s){s=Math.max(0,Math.round(s/60));const h=Math.floor(s/60),m=s%60;return h?`${h} h ${m} min`:`${m} min`}
+function initials(n){return (n||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase()}
+
+/* ---------- sign in ---------- */
+const PEOPLE = [{id:"s1",fixed:"Dominik"},{id:"s2",fixed:""}];
+const pname = p => p.fixed || ls.get("bp-name-"+p.id,"");
+const lkErr = $("lkErr");
+$("loginForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const pw = $("pwIn").value.trim(); if(!pw){ lkErr.hidden=false; lkErr.textContent="Enter the password."; return; }
+  const btn=$("unlockBtn"); btn.disabled=true; btn.textContent="Unlocking…"; lkErr.hidden=true;
+  try{
+    const r = await unlock(pw);
+    if(!r){ lkErr.hidden=false; lkErr.textContent="That password didn't work. Check for typos and try again."; return; }
+    if($("stayIn").checked) ls.set("bp-session",{raw:b64(r.raw)});
+    $("pwIn").value="";
+    await enter(r.raw);
+  }catch(err){ lkErr.hidden=false; lkErr.textContent="Couldn't reach the files. Check your internet connection and try again."; }
+  finally{ btn.disabled=false; btn.textContent="Unlock"; }
+});
+const nameIn=$("nameIn");
+nameIn.addEventListener("input",()=>{$("nameBtn").disabled=!nameIn.value.trim()});
+$("nameForm").addEventListener("submit",e=>{
+  e.preventDefault(); const n=nameIn.value.trim(); if(!n) return;
+  ls.set("bp-name-"+slot.id,n); name=n; $("nameForm").hidden=true; showApp();
+});
+
+async function enter(raw){
+  K = await importK(raw);
+  try{ coverURL = await decryptFile("cover.bin","image/jpeg"); document.querySelectorAll("img.cover").forEach(i=>i.src=coverURL); }catch{}
+  showWho();
+}
+function showWho(){
+  $("loginForm").hidden=true; $("nameForm").hidden=true; $("whoPanel").hidden=false;
+  $("pkTitle").textContent="Who's listening?";
+  const g=$("pkGrid"); g.textContent="";
+  const last=ls.get("bp-who",null);
+  for(const p of PEOPLE){
+    const n=pname(p), pos=ls.get("bp-pos-"+p.id,null);
+    const t=document.createElement("button"); t.className="pk-tile";
+    const av=document.createElement("span"); av.className="av"+(n?"":" av-add"); av.style.background=SLOT_COLORS[p.id];
+    if(n) av.textContent=initials(n); else av.innerHTML='<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>';
+    const nm=document.createElement("span"); nm.className="pk-name"; nm.textContent=n||"Add your name";
+    const sb=document.createElement("span"); sb.className="pk-sub tnum";
+    sb.textContent = pos && (pos.part>0||pos.pos>5) ? `Part ${pos.part+1} · ${Math.round((OFF[pos.part]+pos.pos)/TOTAL*100)}%` : "Not started";
+    t.append(av,nm,sb);
+    if(last===p.id){const l=document.createElement("span");l.className="pk-last";l.textContent="Last";t.append(l)}
+    t.onclick=()=>choosePerson(p);
+    g.append(t);
+  }
+}
+function choosePerson(p){
+  const n=pname(p); slot={id:p.id,label:n}; ls.set("bp-who",p.id);
+  if(!n){ $("whoPanel").hidden=true; $("nameForm").hidden=false; $("pkTitle").textContent="Why We Sleep"; setTimeout(()=>nameIn.focus(),30); return; }
+  name=n; showApp();
+}
+function showApp(){
+  const p = ls.get("bp-pos-"+slot.id,{part:0,pos:0,speed:1});
+  part=Math.min(N-1,Math.max(0,p.part|0)); speed=SPEEDS.includes(p.speed)?p.speed:1;
+  lastSaved={part,pos:Math.floor(p.pos||0),speed};
+  $("whoAv").style.background=SLOT_COLORS[slot.id]||"#1ed760"; $("whoAv").textContent=initials(name); $("whoName").textContent=name;
+  $("picker").hidden=true; $("app").hidden=false;
+  applySpeed(); loadPart(part,p.pos||0,false); measureBar(); $("main").scrollTop=0;
+}
+function leaveApp(){
+  au.pause(); save(true); clearSleep(); slot=null;
+  $("app").hidden=true; $("picker").hidden=false;
+}
+function switchListener(){ leaveApp(); showWho(); }
+function signOut(){
+  leaveApp();
+  au.removeAttribute("src"); au.load();
+  prune([]); if(coverURL){URL.revokeObjectURL(coverURL);coverURL=""}
+  document.querySelectorAll("img.cover").forEach(i=>i.removeAttribute("src"));
+  ls.del("bp-session"); K=null; pagesLoaded=false; PAGES.forEach(pg=>$("pg"+pg.p).removeAttribute("src"));
+  $("whoPanel").hidden=true; $("nameForm").hidden=true; $("loginForm").hidden=false; $("pkTitle").textContent="Why We Sleep";
+}
+
+/* ---------- audio ---------- */
+let pendingSeek=null, loadSeq=0;
+async function loadPart(i,t,play){
+  part=i; const seq=++loadSeq;
+  pendingSeek=Math.max(0,Math.min(t,DUR[i]-1));
+  setLoading(true); renderTracks(); updateUI(); setMeta();
+  clearTimeout(prefetchT);
+  try{
+    const url = await getPart(i);
+    if(seq!==loadSeq) return;
+    au.src=url; au.playbackRate=speed;
+    if(play) au.play().catch(()=>toast("Tap play to continue."));
+    prune([i-1,i,i+1]);
+    if(i+1<N) prefetchT=setTimeout(()=>getPart(i+1).catch(()=>{}),15000);
+  }catch(e){ if(seq===loadSeq) toast("This part couldn't be loaded. Check your connection and tap it again."); }
+  finally{ if(seq===loadSeq) setLoading(false); }
+}
+au.addEventListener("loadedmetadata",()=>{
+  if(pendingSeek!=null){try{au.currentTime=pendingSeek}catch{} pendingSeek=null}
+  au.playbackRate=speed; updateTime();
+});
+au.addEventListener("timeupdate",()=>{ if(!seeking) updateTime(); });
+au.addEventListener("play",updatePlayState);
+au.addEventListener("pause",()=>{updatePlayState(); save()});
+au.addEventListener("ended",()=>{
+  if(sleepEndOfPart){ clearSleep(); if(part<N-1) loadPart(part+1,0,false); save(true); toast("Sleep timer: stopped at the end of the part."); return; }
+  if(part<N-1){ loadPart(part+1,0,true); save(true); }
+  else { updatePlayState(); toast("You've reached the end of the book."); save(true); }
+});
+function cur(){ return pendingSeek!=null ? pendingSeek : (au.currentTime||0); }
+function toggle(){
+  if(loading) return;
+  if(au.paused) au.play().catch(()=>toast("Tap play again to start audio.")); else au.pause();
+}
+function seekGlobal(delta){
+  const playing=!au.paused;
+  const g=Math.max(0,Math.min(TOTAL-1,OFF[part]+cur()+delta));
+  let i=N-1; while(i>0 && OFF[i]>g) i--;
+  const t=g-OFF[i];
+  if(i===part){ if(pendingSeek!=null) pendingSeek=t; else au.currentTime=t; updateTime(); }
+  else loadPart(i,t,playing);
+  save(true);
+}
+function gotoPart(i){ if(i<0||i>=N) return; loadPart(i,0,true); save(true); }
+function applySpeed(){ au.playbackRate=speed; $("speedBtn").textContent=(speed===1?"1":String(speed))+"×"; $("speedBtn").classList.toggle("on",speed!==1); }
+function setLoading(v){ loading=v; updatePlayState(); }
+
+/* ---------- saving progress (this device) ---------- */
+function save(force){
+  if(!slot) return;
+  const data={part,pos:Math.floor(cur()),speed,updatedAt:Date.now()};
+  if(!force && lastSaved && lastSaved.part===data.part && Math.abs(lastSaved.pos-data.pos)<2 && lastSaved.speed===data.speed) return;
+  ls.set("bp-pos-"+slot.id,data); lastSaved=data;
+}
+setInterval(()=>{ if(slot && !au.paused) save(); },10000);
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") save(true); });
+window.addEventListener("pagehide",()=>save(true));
+
+/* ---------- UI ---------- */
+function updatePlayState(){
+  const playing=!au.paused;
+  $("ppBtn").innerHTML=loading?ICON.spin:(playing?ICON.pause:ICON.play); $("ppBtn").setAttribute("aria-label",loading?"Loading":playing?"Pause":"Play");
+  $("bigPlay").innerHTML=loading?ICON.spin:(playing?ICON.bigpause:ICON.bigplay); $("bigPlay").setAttribute("aria-label",loading?"Loading":playing?"Pause":"Play");
+  $("trackList").classList.toggle("paused",!playing);
+  renderTracks();
+  try{ navigator.mediaSession.playbackState = playing?"playing":"paused"; }catch{}
+}
+function updateTime(){
+  const t=cur(), d=DUR[part];
+  $("tCur").textContent=fmt(t); $("tDur").textContent=fmt(d);
+  const s=$("seek"); s.value=Math.round(t/d*1000); s.style.setProperty("--p",(t/d*100).toFixed(2)+"%");
+  const g=OFF[part]+t, f=g/TOTAL;
+  $("bookFill").style.width=(f*100).toFixed(2)+"%";
+  $("resumeL").innerHTML = g>5 ? `<b>Part ${part+1}</b> · ${fmt(t)} · ${Math.round(f*100)}% · ${hm((TOTAL-g)/speed)} left` : `<b>Start listening</b> · ${hm(TOTAL/speed)}`;
+  const row=document.querySelector(".tr.cur .pg i"); if(row) row.style.width=(t/d*100).toFixed(1)+"%";
+  try{ if(navigator.mediaSession.setPositionState && pendingSeek==null) navigator.mediaSession.setPositionState({duration:d,playbackRate:speed,position:Math.min(t,d)}); }catch{}
+}
+function updateUI(){
+  $("npTitle").textContent=`Part ${part+1} of ${N}`;
+  $("prevBtn").disabled=part===0; $("nextBtn").disabled=part===N-1;
+  updatePlayState(); updateTime();
+}
+function renderTracks(){
+  const L=$("trackList"); L.textContent="";
+  const playing=!au.paused;
+  for(let i=0;i<N;i++){
+    const b=document.createElement("button"); b.className="tr"+(i===part?" cur":"");
+    const done=i<part, frac=i===part?cur()/DUR[i]:(done?1:0);
+    b.innerHTML=`<span class="n">${i===part&&playing?'<span class="eq num"><i></i><i></i><i></i></span>':`<span class="num tnum">${i+1}</span>`}<span class="hov">${i===part&&playing?ICON.pause:ICON.play}</span></span>
+      <span class="t"><b>Part ${i+1}</b><small>${done?"Listened":i===part?(loading?"Loading…":"Now playing"):"Matthew Walker"}</small></span>
+      <span class="pgc"><span class="pg" style="display:block"><i style="width:${(frac*100).toFixed(1)}%"></i></span></span>
+      <span class="d tnum">${fmt(DUR[i])}</span>`;
+    b.setAttribute("aria-label",`Part ${i+1}, ${hm(DUR[i])}`);
+    b.onclick=()=>{ if(i===part) toggle(); else gotoPart(i); };
+    L.append(b);
+  }
+}
+function setMeta(){
+  try{
+    if(!("mediaSession" in navigator)) return;
+    navigator.mediaSession.metadata=new MediaMetadata({title:`Why We Sleep · Part ${part+1}`,artist:"Matthew Walker",album:"Why We Sleep (read by Steve West)",artwork:coverURL?[{src:coverURL,sizes:"900x900",type:"image/jpeg"}]:[]});
+    const h=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch{}};
+    h("play",()=>au.play()); h("pause",()=>au.pause());
+    h("seekbackward",()=>seekGlobal(-30)); h("seekforward",()=>seekGlobal(30));
+    h("previoustrack",()=>seekGlobal(-600)); h("nexttrack",()=>seekGlobal(600));
+    h("seekto",e=>{au.currentTime=e.seekTime;updateTime()});
+  }catch{}
+}
+let toastT=null;
+function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,4200)}
+function measureBar(){const h=$("bar").getBoundingClientRect().height;if(h)document.documentElement.style.setProperty("--bar-h",h+"px")}
+try{new ResizeObserver(measureBar).observe($("bar"))}catch{}
+
+/* ---------- controls ---------- */
+$("ppBtn").onclick=toggle; $("bigPlay").onclick=toggle;
+$("back10").onclick=()=>seekGlobal(-600); $("fwd10").onclick=()=>seekGlobal(600);
+$("prevBtn").onclick=()=>gotoPart(part-1); $("nextBtn").onclick=()=>gotoPart(part+1);
+$("signOut").onclick=signOut; $("signOut2").onclick=signOut; $("whoBtn").onclick=switchListener;
+const seekEl=$("seek");
+seekEl.addEventListener("input",()=>{seeking=true;const t=seekEl.value/1000*DUR[part];$("tCur").textContent=fmt(t);seekEl.style.setProperty("--p",seekEl.value/10+"%")});
+seekEl.addEventListener("change",()=>{const t=seekEl.value/1000*DUR[part];if(pendingSeek!=null)pendingSeek=t;else au.currentTime=t;seeking=false;updateTime();save(true)});
+const volEl=$("vol");
+volEl.style.setProperty("--p","100%");
+volEl.addEventListener("input",()=>{au.volume=volEl.value/100;volEl.style.setProperty("--p",volEl.value+"%")});
+$("main").addEventListener("scroll",()=>$("topbar").classList.toggle("solid",$("main").scrollTop>180),{passive:true});
+
+function closeMenus(){$("speedMenu").hidden=true;$("sleepMenu").hidden=true}
+function buildSpeed(){
+  const m=$("speedMenu"); m.innerHTML="<h3>Playback speed</h3>";
+  SPEEDS.forEach(s=>{const b=document.createElement("button");b.setAttribute("role","menuitemradio");b.setAttribute("aria-checked",String(s===speed));b.innerHTML=`<span>${s}×</span>${s===1?"<span style='color:var(--muted)'>Normal</span>":""}`;b.onclick=()=>{speed=s;applySpeed();closeMenus();updateTime();save(true)};m.append(b)});
+}
+function buildSleep(){
+  const m=$("sleepMenu"); m.innerHTML="<h3>Sleep timer</h3>";
+  const opts=[["Off",0],["15 minutes",15],["30 minutes",30],["45 minutes",45],["1 hour",60],["End of this part","part"]];
+  const active = sleepEndOfPart?"part":(sleepAt?"x":0);
+  opts.forEach(([l,v])=>{const b=document.createElement("button");b.setAttribute("role","menuitemradio");b.setAttribute("aria-checked",String(v===active||(v===0&&!active)));b.textContent=l;b.onclick=()=>{setSleep(v);closeMenus()};m.append(b)});
+}
+$("speedBtn").onclick=e=>{e.stopPropagation();const o=$("speedMenu").hidden;closeMenus();if(o){buildSpeed();$("speedMenu").hidden=false}};
+$("sleepBtn").onclick=e=>{e.stopPropagation();const o=$("sleepMenu").hidden;closeMenus();if(o){buildSleep();$("sleepMenu").hidden=false}};
+document.addEventListener("click",e=>{if(!e.target.closest(".menu"))closeMenus()});
+
+const MOON='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>';
+function clearSleep(){sleepAt=null;sleepEndOfPart=false;clearInterval(sleepTick);sleepTick=null;au.volume=volEl.value/100;$("sleepBtn").innerHTML=MOON;$("sleepBtn").classList.remove("on")}
+function setSleep(v){
+  clearSleep(); if(!v){toast("Sleep timer off");return}
+  $("sleepBtn").classList.add("on");
+  if(v==="part"){sleepEndOfPart=true;$("sleepBtn").innerHTML=MOON+"<span style='margin-left:4px'>Part end</span>";toast("Playback stops at the end of this part");return}
+  sleepAt=Date.now()+v*60000; toast(`Playback stops in ${v} minutes`);
+  const tick=()=>{
+    const left=sleepAt-Date.now();
+    if(left<=0){au.pause();clearSleep();save(true);return}
+    if(left<10000) au.volume=(volEl.value/100)*(left/10000);
+    $("sleepBtn").innerHTML=MOON+`<span class="tnum" style="margin-left:4px">${fmt(left/1000)}</span>`;
+  };
+  tick(); sleepTick=setInterval(tick,1000);
+}
+
+/* ---------- figures ---------- */
+let zoom=1;
+function buildFigs(){
+  const sc=$("fgScroll"), ch=$("chips");
+  PAGES.forEach(pg=>{
+    const img=document.createElement("img"); img.alt=`Figures page ${pg.p}: ${pg.l}`; img.id="pg"+pg.p; img.width=1600; img.height=2400; img.style.height="auto";
+    sc.append(img);
+    const c=document.createElement("button"); c.className="chip"; c.textContent=pg.l; c.onclick=()=>img.scrollIntoView({behavior:"smooth",block:"start"}); ch.append(c);
+  });
+  sc.addEventListener("scroll",()=>{
+    let best=1; for(const pg of PAGES){const el=$("pg"+pg.p); if(el.offsetTop - sc.offsetTop <= sc.scrollTop+80) best=pg.p}
+    [...ch.children].forEach((c,i)=>c.setAttribute("aria-current",String(PAGES[i].p===best)));
+  },{passive:true});
+  ch.children[0].setAttribute("aria-current","true");
+}
+async function loadPages(){
+  if(pagesLoaded||!K) return; pagesLoaded=true;
+  for(const pg of PAGES){
+    try{ $("pg"+pg.p).src = await decryptFile(`page-0${pg.p}.bin`,"image/jpeg"); }catch{ pagesLoaded=false; toast("Some figures couldn't be loaded. Close and reopen to retry."); return; }
+  }
+}
+function setZoom(z){zoom=Math.max(1,Math.min(3,z));$("fgScroll").style.setProperty("--zoom",zoom);$("zoomV").textContent=Math.round(zoom*100)+"%"}
+function figs(open){
+  const f=$("figs"); const o=open??f.hidden; f.hidden=!o;
+  if(o) loadPages();
+  $("figsTop").setAttribute("aria-pressed",String(o)); $("figsBar").style.color=o?"var(--accent)":"";
+  measureBar();
+}
+$("figsTop").onclick=()=>figs(); $("figsBar").onclick=()=>figs(); $("figsClose").onclick=()=>figs(false);
+$("zoomIn").onclick=()=>setZoom(zoom+0.5); $("zoomOut").onclick=()=>setZoom(zoom-0.5);
+
+document.addEventListener("keydown",e=>{
+  if(!slot || $("app").hidden) return;
+  if(e.target.closest("input,textarea") && e.target.type!=="range") return;
+  if(e.code==="Space" && e.target.closest("button")) return;
+  if(e.code==="Space"){e.preventDefault();toggle()}
+  else if(e.key==="ArrowLeft"&&e.target.type!=="range"){e.preventDefault();seekGlobal(e.shiftKey?-600:-30)}
+  else if(e.key==="ArrowRight"&&e.target.type!=="range"){e.preventDefault();seekGlobal(e.shiftKey?600:30)}
+  else if(e.key==="Escape"){closeMenus()}
+});
+
+/* ---------- boot ---------- */
+$("totalLen").textContent=hm(TOTAL);
+buildFigs();
+(async()=>{
+  const sess = ls.get("bp-session",null);
+  if(sess && sess.raw){
+    try{ await enter(ub64(sess.raw)); return; }catch{ ls.del("bp-session"); }
+  }
+  $("pwIn").focus();
+})();
+})();
+</script>
+</body>
+</html>
